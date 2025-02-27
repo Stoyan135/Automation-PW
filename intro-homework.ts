@@ -1,6 +1,6 @@
 // Exercise 1: Check if a number is even or odd
 // Step 1: Declare a variable `num` and assign any number to it.
-let num: number = 10;
+let num1: number = 10;
 // Step 2: Declare a variable `isEven` and use a logical expression to check if `num` is even.
 let isEven: boolean = num % 2 === 0;
 // Step 3: Log the result
