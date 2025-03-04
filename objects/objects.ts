@@ -1,0 +1,2 @@
+
+type Role =  "Manager"

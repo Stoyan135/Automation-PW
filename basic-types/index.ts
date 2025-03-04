@@ -81,3 +81,23 @@ type PersonInfoType = string | number
 
 const personNameInf: PersonInfoType = "Ivan";
 const personAgeIng: PersonInfoType = 25;
+
+type Status = "approved" | "rejected" | "pending" | "fullfiled";
+
+const currentStatus: Status = "fullfiled";
+
+type PersonData = {
+    name: string;
+    lastName: string;
+    age: number;
+    city?: string;
+}
+
+function displayPersonData({name, lastName, age, city}: PersonData) {
+    if (city) {
+        return`${name} ${lastName} from ${city}`
+    }
+
+    return `${name} ${lastName} is ${age} years old.`
+}
+ 
