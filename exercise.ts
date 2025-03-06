@@ -79,6 +79,7 @@ function getStudents(students: Student[]): string[] {
 
 const studentsNames = getStudents(studentsArr);
 console.log("studentsName", studentsNames);
+
 //
 
 //Exercise Three
