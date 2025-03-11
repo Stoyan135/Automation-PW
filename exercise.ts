@@ -85,3 +85,13 @@ console.log("studentsName", studentsNames);
 //Exercise Three
 // Declare a function "sortStudents" that receive students array result from the previous exercise
 // and sort them by ascending
+
+function sortStudents(students: Student[]): Student[] {
+  return students.sort((a, b) => a.grade - b.grade);
+}
+
+// Calling the function and storing the sorted students
+const sortedStudents = sortStudents(studentsArr);
+
+// Displaying sorted students
+console.log("Sorted Students by Grade:", sortedStudents);
