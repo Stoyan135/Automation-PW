@@ -53,6 +53,6 @@ test("Check if logos list exists", async ({ page }) => {
 
   // locate logos list by locator class name synatx
   const logosListItems = page.locator(".logosList_zAAF li");
-
+  // expect the count of list items
   await expect(logosListItems).toHaveCount(9);
 });
