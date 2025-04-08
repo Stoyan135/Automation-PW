@@ -1,63 +1,71 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
+import path from "path";
 
-test.describe("Playwright home page testing", () => {
-  test.beforeEach("Navigate to the home page", async ({ page }) => {
-    const url = process.env.BASE_URL as string;
-    await page.goto(url, { timeout: 60000 });
+interface Results {
+  username: string;
+  password: string;
+  dropdownValue: string;
+}
+
+const results: Results = {
+  username: "testuser",
+  password: "password",
+  dropdownValue: "dd3",
+};
+
+const fillFormFields = async (page: Page, data: Results) => {
+  const usernameInput = page.locator("xpath=//input[@name='username']");
+  await expect(usernameInput).toBeVisible();
+  await usernameInput.fill(data.username);
+  await expect(usernameInput).toHaveValue(data.username);
+
+  const checkboxEl = page.locator('xpath=//input[@value="cb2"]');
+  await expect(checkboxEl).toBeVisible();
+  await checkboxEl.check();
+  await expect(checkboxEl).toBeChecked();
+
+  const dropdown = page.locator('xpath=//select[@name="dropdown"]');
+  await expect(dropdown).toBeVisible();
+  await dropdown.selectOption(data.dropdownValue);
+  await expect(dropdown).toHaveValue(data.dropdownValue);
+
+  const fileInput = page.locator('xpath=//input[@type="file"]');
+  const filePath = path.resolve(__dirname, "./test.txt"); // Corrected file name
+  await fileInput.setInputFiles(filePath); // <- This line was missing
+};
+
+test.describe("Testing Web Form", () => {
+  test.beforeEach("Open Form Web Page", async ({ page }) => {
+    await page.goto(
+      "https://testpages.herokuapp.com/styled/basic-html-form-test.html"
+    );
   });
 
-  test("Logo exist", async ({ page }) => {
-    // get image by alt text
-    const logo = page.getByAltText("Playwright logo").first();
-    await expect(logo).toBeVisible();
+  test("Cancel (Reset) the Form", async ({ page }) => {
+    await fillFormFields(page, results);
+
+    const resetBtn = page.locator('xpath=//input[@type="reset"]');
+    await resetBtn.click();
+
+    const usernameInput = page.locator("xpath=//input[@name='username']");
+    await expect(usernameInput).toHaveValue("");
   });
 
-  test("Heading exist", async ({ page }) => {
-    // locate heading one by locator tag name
-    const headingTitle = page.locator("h1");
-    // log in the test resuls located element value
-    console.log((await headingTitle.innerText()).valueOf());
-    await expect(headingTitle).toBeVisible();
-  });
+  test("Submit the Form and Verify Details", async ({ page }) => {
+    await fillFormFields(page, results);
 
-  test("Nav links exist", async ({ page }) => {
-    // locate nav link Docs by role and text
-    const docsLink = page.getByRole("link", { name: "Docs" });
-    const apiLink = page.getByRole("link", { name: "API" });
+    const submitBtn = page.locator('xpath=//input[@type="submit"]');
+    await submitBtn.click();
 
-    await expect(docsLink).toBeVisible();
-    await expect(apiLink).toBeVisible();
-  });
+    await expect(page).toHaveURL(/.*the_form_processor\.php/);
 
-  test("Click community link and check the path", async ({ page }) => {
-    // locate nav link Community by role and text
-    const communityLink = page.getByRole("link", { name: "Community" });
-    // clikc the located element
-    await communityLink.click();
-    // expect the current page to have passed url
-    await expect(page).toHaveURL("https://playwright.dev/community/welcome");
+    const title = page.locator("xpath=//h1");
+    await expect(title).toHaveText("Processed Form Details");
 
-    const headingTwo = page.getByRole("heading", { name: "Ambassadors" });
-    await expect(headingTwo).toBeVisible();
-  });
+    const usernameVal = page.locator('xpath=//li[@id="_valueusername"]');
+    await expect(usernameVal).toHaveText(results.username);
 
-  test("Check if logos list exists", async ({ page }) => {
-    // locate logos list by locator class name synatx
-    const logosListItems = page.locator(".logosList_zAAF li");
-    // expect the count of list items1
-    await expect(logosListItems).toHaveCount(9);
-  });
-
-  test("Select Playwright env from the list", async ({ page }) => {
-    const initialEnv = page.getByRole("button", { name: "Node.js" });
-
-    await initialEnv.hover();
-
-    const envList = page.locator(".dropdown__menu");
-    await expect(envList).toBeVisible();
-
-    const listItem = page.locator("ul.dropdown__menu a").getByText("Python");
-    await listItem.click();
-    await expect(page).toHaveURL("https://playwright.dev/python/");
+    const dropdownVal = page.locator('xpath=//li[@id="_valuedropdown"]');
+    await expect(dropdownVal).toHaveText(results.dropdownValue);
   });
 });
